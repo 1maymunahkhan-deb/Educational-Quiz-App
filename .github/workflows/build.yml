@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'Educational-Quiz-WebView-Android.zip'
+      - 'Sindh-Scholars-Quiz-Android-Upgrade-v2.zip'
       - '.github/workflows/build.yml'
 
 permissions:
