@@ -1,5 +1,4 @@
-
-name: Build Educational Quiz APK
+name: Build Sindh Scholars Quiz APK
 
 on:
   workflow_dispatch:
@@ -20,11 +19,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Extract Android project
+        shell: bash
         run: |
+          set -euo pipefail
+
           unzip -q Sindh-Scholars-Quiz-Android-Upgrade-v2.zip -d /tmp/quiz
-          cp -a /tmp/quiz/Educational-Quiz-WebView-Android/app .
-          cp /tmp/quiz/Educational-Quiz-WebView-Android/build.gradle .
-          cp /tmp/quiz/Educational-Quiz-WebView-Android/gradle.properties .
+
+          APP_DIR="$(find /tmp/quiz -type f -path '*/app/build.gradle*' \
+            -printf '%h\n' | head -n 1)"
+
+          if [ -z "$APP_DIR" ]; then
+            echo "ERROR: Could not find the Android app module in the ZIP."
+            find /tmp/quiz -maxdepth 4 -type f | head -100
+            exit 1
+          fi
+
+          PROJECT_DIR="$(dirname "$APP_DIR")"
+
+          cp -a "$APP_DIR" .
+          cp "$PROJECT_DIR/build.gradle" . 2>/dev/null || true
+          cp "$PROJECT_DIR/gradle.properties" . 2>/dev/null || true
+
           cat > settings.gradle <<'EOF'
           pluginManagement {
               repositories {
@@ -33,6 +48,7 @@ jobs:
                   gradlePluginPortal()
               }
           }
+
           dependencyResolutionManagement {
               repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
               repositories {
@@ -40,7 +56,8 @@ jobs:
                   mavenCentral()
               }
           }
-          rootProject.name = "EducationalQuizApp"
+
+          rootProject.name = "SindhScholarsQuiz"
           include(":app")
           EOF
 
@@ -57,6 +74,7 @@ jobs:
 
       - name: Build APK
         run: |
+          set -e
           wget -q https://services.gradle.org/distributions/gradle-8.9-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /tmp
           /tmp/gradle-8.9/bin/gradle assembleDebug
@@ -64,6 +82,7 @@ jobs:
       - name: Save APK for download
         uses: actions/upload-artifact@v4
         with:
-          name: Educational-Quiz-App-APK
+          name: Sindh-Scholars-Quiz-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
           retention-days: 7
