@@ -21,7 +21,7 @@ jobs:
 
       - name: Extract Android project
         run: |
-          unzip -q Educational-Quiz-WebView-Android.zip -d /tmp/quiz
+          unzip -q Sindh-Scholars-Quiz-Android-Upgrade-v2.zip -d /tmp/quiz
           cp -a /tmp/quiz/Educational-Quiz-WebView-Android/app .
           cp /tmp/quiz/Educational-Quiz-WebView-Android/build.gradle .
           cp /tmp/quiz/Educational-Quiz-WebView-Android/gradle.properties .
